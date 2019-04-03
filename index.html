@@ -1,29 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<title>ACE in Action</title>
-<style type="text/css" media="screen">
-    #editor { 
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
-</style>
-</head>
-<body>
+	<head>
+		<title>ACE in Action</title>
+		<style type="text/css" media="screen">
 
-<div id="editor">function foo(items) {
-    var x = "All this is syntax highlighted";
-    return x;
-}</div>
-    
-<script src="/ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-<script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/javascript");
-</script>
-</body>
+			html, body, div {
+				margin:0;
+				padding:0;
+			}
+
+			.container {
+				display: flex;
+				width:100vw;
+				height:100vh;
+			}
+
+			.editor {
+				width:50%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="editor" id="editorL"></div>
+			<div class="editor" id="editorR"></div>
+		</div>
+
+		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			var editorL = ace.edit("editorL");
+			editorL.setTheme("ace/theme/monokai");
+			editorL.session.setMode("ace/mode/javascript");
+			
+			var editorR = ace.edit("editorR");
+			editorR.setTheme("ace/theme/monokai");
+			editorR.session.setMode("ace/mode/javascript");
+			editorR.setOptions({
+				readOnly: true,
+				highlightActiveLine: false,
+				highlightGutterLine: false
+			})
+			editorR.renderer.$cursorLayer.element.style.opacity=0;
+
+			editorL.session.on('change', function(delta) {
+				// changes
+			});
+
+		</script>
+	</body>
 </html>

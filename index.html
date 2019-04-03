@@ -2,6 +2,7 @@
 <html lang="en">
 	<head>
 		<title>ACE in Action</title>
+		<script src="FileSaver.js"></script>
 		<style type="text/css" media="screen">
 
 			html, body, div {
@@ -21,6 +22,9 @@
 		</style>
 	</head>
 	<body>
+		<input type="file" id="fileinput" />
+		<button id="download">download</button>
+			
 		<div class="container">
 			<div class="editor" id="editorL"></div>
 			<div class="editor" id="editorR"></div>
@@ -30,7 +34,7 @@
 		<script>
 			var editorL = ace.edit("editorL");
 			editorL.setTheme("ace/theme/monokai");
-			editorL.session.setMode("ace/mode/javascript");
+			editorL.session.setMode("ace/mode/text");
 			
 			var editorR = ace.edit("editorR");
 			editorR.setTheme("ace/theme/monokai");
@@ -44,7 +48,7 @@
 
 			editorL.session.on('change', function(delta) {
 				var start = '---2019 BIN-TO-VHD CONVERTER 1.0\n---Copyright William D. Richard, Ph.D.\n\nLIBRARY IEEE ;\nUSE IEEE.STD_LOGIC_1164.ALL ;\nUSE IEEE.STD_LOGIC_ARITH.ALL;\n\nENTITY eprom IS\n   PORT (d        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0) ;\n         address  : IN  STD_LOGIC_VECTOR(9 DOWNTO 0) ;\n         ce_l     : IN  STD_LOGIC ;\n         oe_l     : IN  STD_LOGIC) ;\n   END eprom ;\n\nARCHITECTURE behavioral OF eprom IS\n\n   SIGNAL data    : STD_LOGIC_VECTOR(31 DOWNTO 0) ;\n   SIGNAL sel     : STD_LOGIC_VECTOR(31 DOWNTO 0) ;\n\nBEGIN\n\n   sel <= "00000000000000000000" & address & "00" ;\n\n   WITH sel  SELECT\n   data <=\n';
-				var end = '      X"00000000" WHEN OTHERS ;\n\nreadprocess:PROCESS(ce_l,oe_l,data)\nbegin\n   IF (ce_l = \'0\' AND oe_l = \'0\') THEN\n	  d(31 DOWNTO 0) <= data ;\n   else\n  d(31 DOWNTO 0) <= (OTHERS => \'Z\') ;\n   END IF;\nEND PROCESS readprocess ;\nEND behavioral ;'
+				var end = '      X"00000000" WHEN OTHERS ;\n\n   readprocess:PROCESS(ce_l,oe_l,data)\n   begin\n      IF (ce_l = \'0\' AND oe_l = \'0\') THEN\n           d(31 DOWNTO 0) <= data ;\n      else\n\t d(31 DOWNTO 0) <= (OTHERS => \'Z\') ;\n      END IF;\n   END PROCESS readprocess ;\n\nEND behavioral ;\n'
 
 				var content = evalRight();
 				if (content == "") {
@@ -61,12 +65,35 @@
 					var line = editorL.session.getLine(i);
 					var hex = line.match(hex8);
 					if (hex != null && hex.length == 2) {
-						content += '      X"' + hex[1] + '" WHEN X"' + hex[0] + '" ,\n';
+						content += '      X"' + hex[1] + '" WHEN X"' + hex[0] + '" , \n';
 					}
 				}
 				return content;
 			}
 
-		</script>
+			function readSingleFile(evt) {
+			  //Retrieve the first (and only!) File from the FileList object
+			  var f = evt.target.files[0]; 
+		  
+			  if (f) {
+				var r = new FileReader();
+				r.onload = function(e) { 
+				  var contents = e.target.result;
+				  var csplit = contents.split("\n");
+				  editorL.setValue(contents);
+				}
+				r.readAsText(f);
+			  } else { 
+				alert("Failed to load file");
+			  }
+			}
+
+			document.getElementById("download").addEventListener("click", ()=>{
+				var file = new File([editorR.getValue()], "eprom.vhd", {type: "text/plain;charset=utf-8"});
+				saveAs(file);
+			});
+		  
+			document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+		  </script>
 	</body>
 </html>

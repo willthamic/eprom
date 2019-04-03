@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>ACE in Action</title>
+		<title>Binary to VHDL</title>
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 		<script src="FileSaver.js"></script>
 		<style type="text/css" media="screen">
+
 
 			html, body, div {
 				margin:0;
@@ -11,33 +13,116 @@
 			}
 
 			.container {
-				display: flex;
-				width:100vw;
+				display:flex;
+				flex-direction: column;
 				height:100vh;
+				width:100vw;
 			}
 
-			.editor {
+			.input-container {
+				display:flex;
+				height:75px;
+				font-family: 'Open Sans', sans-serif;
+			}
+
+			.editor-container {
+				display: flex;
+				width:100%;
+				height:100%;
+			}
+
+			.editor, .header {
+				display:flex;
 				width:50%;
+			}
+
+			.header {
+				justify-content: space-between;
+				align-items:center;
+				padding:10px;
+			}
+
+			#binaryHeader {
+				background-color: #e74c3c;
+			}
+
+			.header > div {
+				font-size:30px;
+				vertical-align: middle;
+				line-height:55px;
+				color:#ddd;
+			}
+
+			#vhdlHeader {
+				background-color:#2980b9;
+			}
+
+			[type="file"] {
+				border: 0;
+				clip: rect(0, 0, 0, 0);
+				height: 1px;
+				overflow: hidden;
+				padding: 0;
+				position: absolute !important;
+				white-space: nowrap;
+				width: 1px;  
+			}
+
+			[type="file"] + label, #download {
+				background-color: #ddd;
+				border-radius: 0.2rem;
+				color: #333;
+				cursor: pointer;
+				display: inline-block;
+				font-size: 1rem;
+				height: 3rem;
+				line-height: 3rem;
+				padding-left: 2rem;
+				padding-right: 2rem;
+				transition: background-color 0.05s;
+			}
+			
+			[type="file"]:focus + label,
+			[type="file"] + label:hover,
+			#download:hover {
+				background-color: #eee;
+			}
+			
+			[type="file"]:focus + label,
+			#download:focus {
+				outline: 1px dotted #000;
+				outline: -webkit-focus-ring-color auto 5px;
 			}
 		</style>
 	</head>
 	<body>
-		<input type="file" id="fileinput" />
-		<button id="download">download</button>
-			
+		
 		<div class="container">
-			<div class="editor" id="editorL"></div>
-			<div class="editor" id="editorR"></div>
+			<div class="input-container">
+				<div class="header" id="binaryHeader">
+					<div>Binary Source</div>
+					<input type="file" id="fileinput" />
+					<label for="fileinput">Upload Binary</label>
+				</div>
+				<div class="header" id="vhdlHeader">
+					<div>VHDL</div>
+					<div id="download">Download VHDL</div>
+				</div>
+			</div>
+			<div class="editor-container">
+				<div class="editor" id="editorL"></div>
+				<div class="editor" id="editorR"></div>
+			</div>
 		</div>
 
 		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 		<script>
 			var editorL = ace.edit("editorL");
-			editorL.setTheme("ace/theme/monokai");
+			editorL.setTheme("ace/theme/twilight");
 			editorL.session.setMode("ace/mode/text");
 			
 			var editorR = ace.edit("editorR");
-			editorR.setTheme("ace/theme/monokai");
+			editorR.setTheme("ace/theme/twilight");
 			editorR.session.setMode("ace/mode/vhdl");
 			editorR.setOptions({
 				readOnly: true,
@@ -72,7 +157,6 @@
 			}
 
 			function readSingleFile(evt) {
-			  //Retrieve the first (and only!) File from the FileList object
 			  var f = evt.target.files[0]; 
 		  
 			  if (f) {

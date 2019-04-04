@@ -117,32 +117,36 @@
 
 		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 		<script>
+			// Left editor initialization
 			var editorL = ace.edit("editorL");
 			editorL.setTheme("ace/theme/twilight");
 			editorL.session.setMode("ace/mode/text");
 			
+			// Right editor initialization
 			var editorR = ace.edit("editorR");
 			editorR.setTheme("ace/theme/twilight");
 			editorR.session.setMode("ace/mode/vhdl");
 			editorR.setOptions({
 				readOnly: true,
-				highlightActiveLine: false,
+				// highlightActiveLine: false,
 				highlightGutterLine: false
 			})
 			editorR.renderer.$cursorLayer.element.style.opacity=0;
 
+			// When there is a change in the left editor rewrite entire right editor based on contents.
 			editorL.session.on('change', function(delta) {
 				var start = '---2019 BIN-TO-VHD CONVERTER 1.0\n---Copyright William D. Richard, Ph.D.\n\nLIBRARY IEEE ;\nUSE IEEE.STD_LOGIC_1164.ALL ;\nUSE IEEE.STD_LOGIC_ARITH.ALL;\n\nENTITY eprom IS\n   PORT (d        : OUT STD_LOGIC_VECTOR(31 DOWNTO 0) ;\n         address  : IN  STD_LOGIC_VECTOR(9 DOWNTO 0) ;\n         ce_l     : IN  STD_LOGIC ;\n         oe_l     : IN  STD_LOGIC) ;\n   END eprom ;\n\nARCHITECTURE behavioral OF eprom IS\n\n   SIGNAL data    : STD_LOGIC_VECTOR(31 DOWNTO 0) ;\n   SIGNAL sel     : STD_LOGIC_VECTOR(31 DOWNTO 0) ;\n\nBEGIN\n\n   sel <= "00000000000000000000" & address & "00" ;\n\n   WITH sel  SELECT\n   data <=\n';
 				var end = '      X"00000000" WHEN OTHERS ;\n\n   readprocess:PROCESS(ce_l,oe_l,data)\n   begin\n      IF (ce_l = \'0\' AND oe_l = \'0\') THEN\n           d(31 DOWNTO 0) <= data ;\n      else\n\t d(31 DOWNTO 0) <= (OTHERS => \'Z\') ;\n      END IF;\n   END PROCESS readprocess ;\n\nEND behavioral ;\n'
 
 				var content = evalRight();
 				if (content == "") {
-					editorR.setValue("");
+					editorR.setValue("", 1);
 					return;
 				}
-				editorR.setValue(start + content + end);
+				editorR.setValue(start + content + end, 1);
 			});
 
+			// Processes contents of left editor into selection statement.
 			function evalRight() {
 				var hex8 = /[0-9A-F]{8}/g;
 				var content = "";
@@ -156,28 +160,28 @@
 				return content;
 			}
 
+			// When the download button is pressed, prompt to download file
+			document.getElementById("download").addEventListener("click", ()=>{
+				var file = new File([editorR.getValue()], "eprom.vhd", {type: "text/plain;charset=utf-8"});
+				saveAs(file);
+			});
+			
+			// When a file is selected, import it into the left editor
+			document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
 			function readSingleFile(evt) {
-			  var f = evt.target.files[0]; 
-		  
-			  if (f) {
-				var r = new FileReader();
-				r.onload = function(e) { 
-				  var contents = e.target.result;
-				  var csplit = contents.split("\n");
-				  editorL.setValue(contents);
+				var f = evt.target.files[0]; 
+				
+				if (f) {
+					var r = new FileReader();
+					r.onload = function(e) { 
+						var contents = e.target.result;
+				  editorL.setValue(contents, 1);
 				}
 				r.readAsText(f);
 			  } else { 
 				alert("Failed to load file");
 			  }
 			}
-
-			document.getElementById("download").addEventListener("click", ()=>{
-				var file = new File([editorR.getValue()], "eprom.vhd", {type: "text/plain;charset=utf-8"});
-				saveAs(file);
-			});
-		  
-			document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
 		  </script>
 	</body>
 </html>

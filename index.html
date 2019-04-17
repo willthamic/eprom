@@ -56,6 +56,50 @@
 				background-color:#2980b9;
 			}
 
+			#old {
+				display:none;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 10;
+				background-color: rgba(0,0,0,0.7);
+			}
+
+			#old > div {
+				margin: auto;
+				margin-top:100px;
+				padding:0 50px 20px 50px;
+				width: 400px;
+				background-color:#222222;
+				border-radius:10px;
+				border:2px solid #fff;
+				text-align:center;
+			}
+
+			#old div h1 {
+				color:#FFDD40;
+				font-size:150px;
+				line-height:0;
+				font-weight:normal;
+			}
+
+			#old div p, #old div h3 {
+				font-family: 'Open Sans', sans-serif;
+				color: white;
+			}
+
+			#old div a {
+				color: white;
+			}
+
+			#old div #ignore {
+				margin: auto;
+				display: inline-block;
+				font-family: 'Open Sans', sans-serif;
+			}
+
 			[type="file"] {
 				border: 0;
 				clip: rect(0, 0, 0, 0);
@@ -67,7 +111,9 @@
 				width: 1px;  
 			}
 
-			[type="file"] + label, #download {
+			[type="file"] + label,
+			#download,
+			#ignore {
 				background-color: #ddd;
 				border-radius: 0.2rem;
 				color: #333;
@@ -83,19 +129,28 @@
 			
 			[type="file"]:focus + label,
 			[type="file"] + label:hover,
-			#download:hover {
+			#download:hover,
+			#old #ignore:hover {
 				background-color: #eee;
 			}
 			
 			[type="file"]:focus + label,
-			#download:focus {
+			#download:focus,
+			#old #ignore:focus {
 				outline: 1px dotted #000;
 				outline: -webkit-focus-ring-color auto 5px;
 			}
 		</style>
 	</head>
 	<body>
-		
+		<div id="old">
+			<div>
+					<h1>&#x26a0;</h1>
+					<h3>Warning!</h3>
+					<p>It looks like you are using an outdated web browser. While this tool is not guaranteed to work in any browser, it has been tested in recent versions of <a href="#">Chrome</a>, <a href="#">Firefox</a>, <a href="#">Safari</a>, <a href="#">Edge</a> and <a href="#">Opera</a>. You can choose to ignore this warning but you may experience unexpected problems.</p>
+					<div id="ignore">Ignore and continue</div>
+			</div>
+		</div>
 		<div class="container">
 			<div class="input-container">
 				<div class="header" id="binaryHeader">
@@ -116,6 +171,11 @@
 
 		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 		<script>
+			if (!isModern()) {
+				var element = document.getElementById("old");
+				element.style.display = "block";
+			}
+
 			// Left editor initialization
 			var editorL = ace.edit("editorL");
 			editorL.setTheme("ace/theme/twilight");
@@ -131,6 +191,12 @@
 				highlightGutterLine: false
 			})
 			editorR.renderer.$cursorLayer.element.style.opacity=0;
+
+			// When the ignore button is pressed, close the warning
+			document.getElementById("ignore").addEventListener("click", ()=>{
+				var element = document.getElementById("old");
+				element.style.display = "none";
+			});
 
 			// When there is a change in the left editor rewrite entire right editor based on contents.
 			editorL.session.on('change', function(delta) {
@@ -199,6 +265,28 @@
 				newInput.style.cssText = oldInput.style.cssText; 
 
 				oldInput.parentNode.replaceChild(newInput, oldInput); 
+			}
+
+			function isModern() { 
+				if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1 ) {
+					// Opera
+					return true;
+				} else if (navigator.userAgent.indexOf("Chrome") != -1 ) {
+					// Chrome
+					return true;
+				} else if (navigator.userAgent.indexOf("Safari") != -1) {
+					// Safari
+					return true;
+				} else if (navigator.userAgent.indexOf("Firefox") != -1 ) {
+					// Firefox
+					return true;
+				} else if ((navigator.userAgent.indexOf("MSIE") != -1 ) || (!!document.documentMode == true )) { //IF IE > 10
+					// Internet Explorer
+					return false;
+				} else {
+					// unknown
+					return false;
+				}
 			}
 		  </script>
 	</body>

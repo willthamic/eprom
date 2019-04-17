@@ -5,8 +5,6 @@
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 		<script src="FileSaver.js"></script>
 		<style type="text/css" media="screen">
-
-
 			html, body, div {
 				margin:0;
 				padding:0;
@@ -178,9 +176,28 @@
 				  editorL.setValue(contents, 1);
 				}
 				r.readAsText(f);
+				clearFileInput('fileinput');
+				document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
 			  } else { 
 				alert("Failed to load file");
 			  }
+			}
+
+			// Reset the upload button when a file is uploaded
+			function clearFileInput(id) 
+			{ 
+				var oldInput = document.getElementById(id); 
+
+				var newInput = document.createElement("input"); 
+
+				newInput.type = "file"; 
+				var temp = oldInput.id
+				newInput.id = temp; 
+				newInput.name = oldInput.name; 
+				newInput.className = oldInput.className; 
+				newInput.style.cssText = oldInput.style.cssText; 
+
+				oldInput.parentNode.replaceChild(newInput, oldInput); 
 			}
 		  </script>
 	</body>
